@@ -91,21 +91,21 @@ npm run start:dev
 
 ### Module 1: Users (`modules/user/`)
 
-- **Create users** with email and User by default have Basic Bundle along with thier defined Quota
-- **Login** Return Access Token for authentication later user create bundle, chat and thier usage plans after authentication and authorization.
+- **Create users:** with email and User by default have Basic Bundle along with thier defined Quota
+- **Login:** Return Access Token for authentication later user create bundle, chat and thier usage plans after authentication and authorization.
 
 ### Module 2: Subscriptions (`modules/subscription/`)
 
-- **Bundle tiers**: Basic, Pro, Enterprise
-- **Billing cycles**: Monthly or Yearly
-- **Auto-renewal** with payment simulation
-- **Cancellation** support
-- **Usage tracking** as according to the user plan usage + remainings messages.
+- **Bundle tiers:** Basic, Pro, Enterprise
+- **Billing cycles:** Monthly or Yearly
+- **Auto-renewal:** with payment simulation
+- **Cancellation:** support
+- **Usage tracking:** as according to the user plan usage + remainings messages.
 
 ### Module 3: Chat System (`modules/chat/`)
 
-- **Mock OpenAI** with realistic delays (200-800ms)
-- **3 free messages/month** per user (auto-resets)
+- **Mock OpenAI:** with realistic delays (200-800ms)
+- **3 free messages/month:** per user (auto-resets)
 - **Subscription bundles**:
   - Basic: 10 messages
   - Pro: 100 messages
@@ -209,6 +209,25 @@ curl -X POST http://localhost:5000/api/v1/subscriptions/bundles \
   -d '{"tier": "PRO", "billingCycle": "MONTHLY"}'
 ```
 
+**Response:**
+
+```json
+{
+  "id": "bundle-uuid",
+  "tier": "PRO",
+  "maxMessages": 100,
+  "messagesUsed": 0,
+  "remainingMessages": 100,
+  "price": 49.99,
+  "billingCycle": "MONTHLY",
+  "status": "ACTIVE",
+  "autoRenew": true,
+  "startDate": "2024-01-01T00:00:00.000Z",
+  "endDate": "2024-02-01T00:00:00.000Z",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
 **Note:** The `userId` is automatically extracted from the JWT token.
 
 ### 7. Get User Bundles (Requires Authentication)
@@ -218,12 +237,86 @@ curl -X GET http://localhost:5000/api/v1/subscriptions/bundles \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
+**Response:**
+
+```json
+[
+  {
+    "id": "bundle-uuid-2",
+    "tier": "PRO",
+    "maxMessages": 100,
+    "messagesUsed": 15,
+    "remainingMessages": 85,
+    "price": 49.99,
+    "billingCycle": "MONTHLY",
+    "status": "ACTIVE",
+    "autoRenew": true,
+    "startDate": "2024-01-15T00:00:00.000Z",
+    "endDate": "2024-02-15T00:00:00.000Z",
+    "createdAt": "2024-01-15T00:00:00.000Z"
+  },
+  {
+    "id": "bundle-uuid-1",
+    "tier": "BASIC",
+    "maxMessages": 10,
+    "messagesUsed": 3,
+    "remainingMessages": 7,
+    "price": 9.99,
+    "billingCycle": "MONTHLY",
+    "status": "ACTIVE",
+    "autoRenew": true,
+    "startDate": "2024-01-01T00:00:00.000Z",
+    "endDate": "2024-02-01T00:00:00.000Z",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]
+```
+
+**Note:** Returns all bundles for the authenticated user, ordered by creation date (newest first).
+
 ### 8. Get Active Bundles (Requires Authentication)
 
 ```bash
 curl -X GET http://localhost:5000/api/v1/subscriptions/bundles/active \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "bundle-uuid-2",
+    "tier": "PRO",
+    "maxMessages": 100,
+    "messagesUsed": 15,
+    "remainingMessages": 85,
+    "price": 49.99,
+    "billingCycle": "MONTHLY",
+    "status": "ACTIVE",
+    "autoRenew": true,
+    "startDate": "2024-01-15T00:00:00.000Z",
+    "endDate": "2024-02-15T00:00:00.000Z",
+    "createdAt": "2024-01-15T00:00:00.000Z"
+  },
+  {
+    "id": "bundle-uuid-1",
+    "tier": "BASIC",
+    "maxMessages": 10,
+    "messagesUsed": 3,
+    "remainingMessages": 7,
+    "price": 9.99,
+    "billingCycle": "MONTHLY",
+    "status": "ACTIVE",
+    "autoRenew": true,
+    "startDate": "2024-01-01T00:00:00.000Z",
+    "endDate": "2024-02-01T00:00:00.000Z",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]
+```
+
+**Note:** Returns only active bundles for the authenticated user, ordered by creation date (newest first).
 
 ---
 
