@@ -1,0 +1,910 @@
+{
+  "info": {
+    "_postman_id": "Golden-Gate",
+    "name": "Golden Gate Innovation ",
+    "description": "Complete API documentation for AI Chat Module and Subscription Bundle Module\n\n## Base URL\n`http://localhost:5000/api/v1`\n\n## Authentication\nAll routes (except Register and Login) require JWT authentication.\n1. Register a user or use existing credentials\n2. Login to get an access token\n3. Use the token in Authorization header: `Bearer {{access_token}}`\n\n## Features\n- JWT-based authentication\n- AI Chat with mocked OpenAI responses\n- Monthly usage tracking (3 free messages/month)\n- Subscription bundles (Basic, Pro, Enterprise)\n- Auto-renewal and billing simulation\n- Quota management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"name\": \"John Doe\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/register-user",
+              "host": ["{{base_url}}"],
+              "path": ["users", "register-user"]
+            },
+            "description": "Creates a new user account with email, name, and password. Password is hashed using bcryptjs. Returns the created user with generated UUID (password is NOT included in response)."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"name\": \"John Doe\",\n  \"password\": \"SecurePassword123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/users/register-user",
+                  "host": ["{{base_url}}"],
+                  "path": ["users", "register-user"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"email\": \"john.doe@example.com\",\n  \"name\": \"John Doe\",\n  \"createdAt\": \"2024-01-15T10:30:00.000Z\",\n  \"updatedAt\": \"2024-01-15T10:30:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/get-user/:id",
+              "host": ["{{base_url}}"],
+              "path": ["users", "get-user", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123e4567-e89b-12d3-a456-426614174000",
+                  "description": "User UUID"
+                }
+              ]
+            },
+            "description": "Retrieves a user by their unique ID (UUID)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by Email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/email/:email",
+              "host": ["{{base_url}}"],
+              "path": ["users", "email", ":email"],
+              "variable": [
+                {
+                  "key": "email",
+                  "value": "john.doe@example.com",
+                  "description": "User email address"
+                }
+              ]
+            },
+            "description": "Retrieves a user by their email address."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has user and token\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('user');",
+                  "    pm.expect(jsonData).to.have.property('accessToken');",
+                  "    pm.expect(jsonData.user).to.have.property('id');",
+                  "    pm.expect(jsonData.user).to.have.property('email');",
+                  "});",
+                  "",
+                  "// Save token and user ID for use in other requests",
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('access_token', jsonData.accessToken);",
+                  "    pm.environment.set('user_id', jsonData.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/login",
+              "host": ["{{base_url}}"],
+              "path": ["users", "login"]
+            },
+            "description": "Authenticates a user and returns a JWT access token.\n\n**Response includes:**\n- User information (id, email, name, timestamps)\n- accessToken: JWT token to use in Authorization header for protected routes\n\n**Token Usage:**\n- Add header: `Authorization: Bearer {{access_token}}`\n- Token expires in 7 days (configurable via JWT_EXPIRES_IN)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/users/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["users", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"user\": {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"createdAt\": \"2024-01-15T10:30:00.000Z\",\n    \"updatedAt\": \"2024-01-15T10:30:00.000Z\"\n  },\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjNlNDU2Ny1lODliLTEyZDMtYTQ1Ni00MjY2MTQxNzQwMDAiLCJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwiaWF0IjoxNzA1MzI1ODAwLCJleHAiOjE3MDYxODk4MDB9.example\"\n}"
+            },
+            {
+              "name": "Invalid Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"WrongPassword\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/users/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["users", "login"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 401,\n  \"timestamp\": \"2024-01-15T10:40:00.000Z\",\n  \"path\": \"/api/v1/users/login\",\n  \"method\": \"POST\",\n  \"message\": \"Invalid password\",\n  \"error\": \"Unauthorized\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "User management endpoints for creating, authenticating, and retrieving users."
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Send Chat Message",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('question');",
+                  "    pm.expect(jsonData).to.have.property('answer');",
+                  "    pm.expect(jsonData).to.have.property('tokensUsed');",
+                  "    pm.expect(jsonData).to.have.property('createdAt');",
+                  "});",
+                  "",
+                  "// Save response for use in other requests",
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('last_chat_message_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What is artificial intelligence?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chat",
+              "host": ["{{base_url}}"],
+              "path": ["chat"]
+            },
+            "description": "Sends a chat message to the AI. Returns a mocked OpenAI response with simulated delay (200-800ms).\n\n**Quota Management:**\n- First 3 messages per month are free\n- After that, requires an active subscription bundle\n- Deducts from bundle with latest remaining quota\n\n**Note:** The response includes simulated tokens used (50-500 range)."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"question\": \"What is artificial intelligence?\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/chat",
+                  "host": ["{{base_url}}"],
+                  "path": ["chat"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"456e7890-e89b-12d3-a456-426614174001\",\n  \"question\": \"What is artificial intelligence?\",\n  \"answer\": \"That is an interesting question! Based on my analysis, here is what I can tell you...\",\n  \"tokensUsed\": 234,\n  \"createdAt\": \"2024-01-15T10:35:00.000Z\"\n}"
+            },
+            {
+              "name": "Quota Exceeded",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"question\": \"Another question\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/chat",
+                  "host": ["{{base_url}}"],
+                  "path": ["chat"]
+                }
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 402,\n  \"timestamp\": \"2024-01-15T10:40:00.000Z\",\n  \"path\": \"/api/v1/chat\",\n  \"method\": \"POST\",\n  \"message\": \"No active subscription bundles. Please purchase a bundle to continue.\",\n  \"error\": \"Quota Exceeded\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Chat History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/chat/history/:userId",
+              "host": ["{{base_url}}"],
+              "path": ["chat", "history", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id}}",
+                  "description": "User UUID"
+                }
+              ]
+            },
+            "description": "Retrieves all chat messages for a specific user, ordered by creation date."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/chat/history/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{base_url}}"],
+                  "path": ["chat", "history", "123e4567-e89b-12d3-a456-426614174000"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": \"456e7890-e89b-12d3-a456-426614174001\",\n    \"question\": \"What is artificial intelligence?\",\n    \"answer\": \"That is an interesting question! Based on my analysis, here is what I can tell you...\",\n    \"tokensUsed\": 234,\n    \"createdAt\": \"2024-01-15T10:35:00.000Z\"\n  },\n  {\n    \"id\": \"789e0123-e89b-12d3-a456-426614174002\",\n    \"question\": \"How does machine learning work?\",\n    \"answer\": \"I understand your inquiry. Let me provide you with a comprehensive response...\",\n    \"tokensUsed\": 187,\n    \"createdAt\": \"2024-01-15T10:36:00.000Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Monthly Usage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/chat/usage/:userId",
+              "host": ["{{base_url}}"],
+              "path": ["chat", "usage", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id}}",
+                  "description": "User UUID"
+                }
+              ]
+            },
+            "description": "Retrieves monthly usage statistics for a user, including:\n- Free messages used and limit (3 per month)\n- Active bundle usage details\n\n**Note:** Free quota automatically resets on the 1st of each month."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/chat/usage/123e4567-e89b-12d3-a456-426614174000",
+                  "host": ["{{base_url}}"],
+                  "path": ["chat", "usage", "123e4567-e89b-12d3-a456-426614174000"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"freeMessagesUsed\": 3,\n  \"freeMessagesLimit\": 3,\n  \"bundleUsages\": [\n    {\n      \"bundleId\": \"789e0123-e89b-12d3-a456-426614174003\",\n      \"tier\": \"PRO\",\n      \"messagesUsed\": 5,\n      \"maxMessages\": 100\n    },\n    {\n      \"bundleId\": \"012e3456-e89b-12d3-a456-426614174004\",\n      \"tier\": \"BASIC\",\n      \"messagesUsed\": 2,\n      \"maxMessages\": 10\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ],
+      "description": "AI Chat endpoints for sending messages, retrieving history, and checking usage."
+    },
+    {
+      "name": "Subscriptions",
+      "item": [
+        {
+          "name": "Create Bundle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has bundle details\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('tier');",
+                  "    pm.expect(jsonData).to.have.property('maxMessages');",
+                  "    pm.expect(jsonData).to.have.property('price');",
+                  "    pm.expect(jsonData).to.have.property('billingCycle');",
+                  "    pm.expect(jsonData).to.have.property('autoRenew');",
+                  "});",
+                  "",
+                  "// Save bundle ID for use in other requests",
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('bundle_id', jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tier\": \"PRO\",\n  \"billingCycle\": \"MONTHLY\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/subscriptions/bundles",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "bundles"]
+            },
+            "description": "Creates a new subscription bundle for a user.\n\n**Bundle Tiers:**\n- `BASIC`: 10 messages, $9.99/month or $99.90/year\n- `PRO`: 100 messages, $49.99/month or $499.90/year\n- `ENTERPRISE`: Unlimited messages, $199.99/month or $1999.90/year\n\n**Billing Cycles:**\n- `MONTHLY`: Monthly subscription\n- `YEARLY`: Yearly subscription (10x monthly price)\n\n**Default Settings:**\n- Auto-renew is enabled by default\n- Status is ACTIVE\n- Messages used starts at 0"
+          },
+          "response": [
+            {
+              "name": "Success - PRO Monthly",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tier\": \"PRO\",\n  \"billingCycle\": \"MONTHLY\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/bundles",
+                  "host": ["{{base_url}}"],
+                  "path": ["subscriptions", "bundles"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"789e0123-e89b-12d3-a456-426614174003\",\n  \"tier\": \"PRO\",\n  \"maxMessages\": 100,\n  \"messagesUsed\": 0,\n  \"remainingMessages\": 100,\n  \"price\": 49.99,\n  \"billingCycle\": \"MONTHLY\",\n  \"status\": \"ACTIVE\",\n  \"autoRenew\": true,\n  \"startDate\": \"2024-01-15T10:00:00.000Z\",\n  \"endDate\": \"2024-02-15T10:00:00.000Z\",\n  \"createdAt\": \"2024-01-15T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Success - Enterprise Yearly",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tier\": \"ENTERPRISE\",\n  \"billingCycle\": \"YEARLY\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/bundles",
+                  "host": ["{{base_url}}"],
+                  "path": ["subscriptions", "bundles"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"012e3456-e89b-12d3-a456-426614174004\",\n  \"tier\": \"ENTERPRISE\",\n  \"maxMessages\": null,\n  \"messagesUsed\": 0,\n  \"remainingMessages\": null,\n  \"price\": 1999.90,\n  \"billingCycle\": \"YEARLY\",\n  \"status\": \"ACTIVE\",\n  \"autoRenew\": true,\n  \"startDate\": \"2024-01-15T10:00:00.000Z\",\n  \"endDate\": \"2025-01-15T10:00:00.000Z\",\n  \"createdAt\": \"2024-01-15T10:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Bundles for User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/bundles/user/:userId",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "bundles", "user", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id}}",
+                  "description": "User UUID"
+                }
+              ]
+            },
+            "description": "Retrieves all subscription bundles for a user (active, inactive, and cancelled), ordered by creation date (newest first)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Bundles for User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/bundles/user/:userId/active",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "bundles", "user", ":userId", "active"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id}}",
+                  "description": "User UUID"
+                }
+              ]
+            },
+            "description": "Retrieves only active subscription bundles for a user. These are the bundles that can be used for chat messages."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Bundle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Bundle is cancelled\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('CANCELLED');",
+                  "    pm.expect(jsonData.autoRenew).to.eql(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/bundles/:bundleId/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "bundles", ":bundleId", "cancel"],
+              "variable": [
+                {
+                  "key": "bundleId",
+                  "value": "{{bundle_id}}",
+                  "description": "Bundle UUID"
+                }
+              ]
+            },
+            "description": "Cancels a subscription bundle.\n\n**Effects:**\n- Sets status to CANCELLED\n- Disables auto-renewal\n- Preserves usage history\n- Bundle remains active until endDate (current billing cycle continues)"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/bundles/789e0123-e89b-12d3-a456-426614174003/cancel",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "subscriptions",
+                    "bundles",
+                    "789e0123-e89b-12d3-a456-426614174003",
+                    "cancel"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"789e0123-e89b-12d3-a456-426614174003\",\n  \"tier\": \"PRO\",\n  \"maxMessages\": 100,\n  \"messagesUsed\": 15,\n  \"remainingMessages\": 85,\n  \"price\": 49.99,\n  \"billingCycle\": \"MONTHLY\",\n  \"status\": \"CANCELLED\",\n  \"autoRenew\": false,\n  \"startDate\": \"2024-01-15T10:00:00.000Z\",\n  \"endDate\": \"2024-02-15T10:00:00.000Z\",\n  \"createdAt\": \"2024-01-15T10:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Renew Bundle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Bundle renewed or payment failed\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    // Status should be ACTIVE (renewed) or INACTIVE (payment failed)",
+                  "    pm.expect(['ACTIVE', 'INACTIVE']).to.include(jsonData.status);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/bundles/:bundleId/renew",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "bundles", ":bundleId", "renew"],
+              "variable": [
+                {
+                  "key": "bundleId",
+                  "value": "{{bundle_id}}",
+                  "description": "Bundle UUID"
+                }
+              ]
+            },
+            "description": "Manually renews a subscription bundle.\n\n**Payment Simulation:**\n- 90% chance: Renewal succeeds (status: ACTIVE, messagesUsed reset to 0)\n- 10% chance: Payment fails (status: INACTIVE)\n\n**Note:** Auto-renewal is handled automatically by a scheduled job that runs every hour."
+          },
+          "response": [
+            {
+              "name": "Success - Renewed",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/bundles/789e0123-e89b-12d3-a456-426614174003/renew",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "subscriptions",
+                    "bundles",
+                    "789e0123-e89b-12d3-a456-426614174003",
+                    "renew"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"789e0123-e89b-12d3-a456-426614174003\",\n  \"tier\": \"PRO\",\n  \"maxMessages\": 100,\n  \"messagesUsed\": 0,\n  \"remainingMessages\": 100,\n  \"price\": 49.99,\n  \"billingCycle\": \"MONTHLY\",\n  \"status\": \"ACTIVE\",\n  \"autoRenew\": true,\n  \"startDate\": \"2024-01-15T10:00:00.000Z\",\n  \"endDate\": \"2024-02-15T10:00:00.000Z\",\n  \"createdAt\": \"2024-01-15T10:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Payment Failed",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/bundles/789e0123-e89b-12d3-a456-426614174003/renew",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "subscriptions",
+                    "bundles",
+                    "789e0123-e89b-12d3-a456-426614174003",
+                    "renew"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"789e0123-e89b-12d3-a456-426614174003\",\n  \"tier\": \"PRO\",\n  \"maxMessages\": 100,\n  \"messagesUsed\": 50,\n  \"remainingMessages\": 50,\n  \"price\": 49.99,\n  \"billingCycle\": \"MONTHLY\",\n  \"status\": \"INACTIVE\",\n  \"autoRenew\": true,\n  \"startDate\": \"2024-01-15T10:00:00.000Z\",\n  \"endDate\": \"2024-02-15T10:00:00.000Z\",\n  \"createdAt\": \"2024-01-15T10:00:00.000Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Toggle Auto-Renew",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Auto-renew toggled\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('autoRenew');",
+                  "    // Save the new state",
+                  "    pm.environment.set('auto_renew_state', jsonData.autoRenew);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/bundles/:bundleId/toggle-auto-renew",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "bundles", ":bundleId", "toggle-auto-renew"],
+              "variable": [
+                {
+                  "key": "bundleId",
+                  "value": "{{bundle_id}}",
+                  "description": "Bundle UUID"
+                }
+              ]
+            },
+            "description": "Toggles the auto-renewal setting for a subscription bundle.\n\n**Behavior:**\n- If autoRenew is `true`, it becomes `false`\n- If autoRenew is `false`, it becomes `true`\n\n**Note:** When auto-renewal is enabled, the system automatically renews the bundle when renewalDate is reached (checked every hour)."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/bundles/789e0123-e89b-12d3-a456-426614174003/toggle-auto-renew",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "subscriptions",
+                    "bundles",
+                    "789e0123-e89b-12d3-a456-426614174003",
+                    "toggle-auto-renew"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"789e0123-e89b-12d3-a456-426614174003\",\n  \"tier\": \"PRO\",\n  \"maxMessages\": 100,\n  \"messagesUsed\": 15,\n  \"remainingMessages\": 85,\n  \"price\": 49.99,\n  \"billingCycle\": \"MONTHLY\",\n  \"status\": \"ACTIVE\",\n  \"autoRenew\": false,\n  \"startDate\": \"2024-01-15T10:00:00.000Z\",\n  \"endDate\": \"2024-02-15T10:00:00.000Z\",\n  \"createdAt\": \"2024-01-15T10:00:00.000Z\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Subscription bundle management endpoints for creating, retrieving, canceling, and managing bundles."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bundle_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
