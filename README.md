@@ -130,7 +130,7 @@ curl -X POST http://localhost:5000/api/v1/users/register-user \
 
 ```json
 {
-  "id": "user-uuid",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
   "email": "user@example.com",
   "name": "Testing",
   "createdAt": "2024-01-01T00:00:00.000Z",
@@ -151,7 +151,7 @@ curl -X POST http://localhost:5000/api/v1/users/login \
 ```json
 {
   "user": {
-    "id": "user-uuid",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
     "email": "user@example.com",
     "name": "John Doe"
   },
@@ -172,7 +172,7 @@ curl -X POST http://localhost:5000/api/v1/chat \
 
 ```json
 {
-  "id": "message-uuid",
+  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
   "question": "What is NestJS?",
   "answer": "That is an interesting question! Based on my analysis, here is what I can tell you...",
   "tokensUsed": 245,
@@ -194,21 +194,21 @@ curl -X GET http://localhost:5000/api/v1/chat/history \
 ```json
 [
   {
-    "id": "message-uuid-3",
+    "id": "a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789",
     "question": "What is TypeScript?",
     "answer": "Great question! After processing your input, here is what I found...",
     "tokensUsed": 312,
     "createdAt": "2024-01-01T11:00:00.000Z"
   },
   {
-    "id": "message-uuid-2",
+    "id": "b2c3d4e5-f6a7-4890-b123-c4d5e6f7a890",
     "question": "How does authentication work?",
     "answer": "I understand your inquiry. Let me provide you with a comprehensive response...",
     "tokensUsed": 189,
     "createdAt": "2024-01-01T10:45:00.000Z"
   },
   {
-    "id": "message-uuid-1",
+    "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
     "question": "What is NestJS?",
     "answer": "That is an interesting question! Based on my analysis, here is what I can tell you...",
     "tokensUsed": 245,
@@ -232,7 +232,7 @@ curl -X GET http://localhost:5000/api/v1/chat/usage \
 {
   "bundleUsages": [
     {
-      "bundleId": "bundle-uuid",
+      "bundleId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       "tier": "BASIC",
       "messagesUsed": 3,
       "maxMessages": 10,
@@ -255,7 +255,7 @@ curl -X POST http://localhost:5000/api/v1/subscriptions/bundles \
 
 ```json
 {
-  "id": "bundle-uuid",
+  "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
   "tier": "PRO",
   "maxMessages": 100,
   "messagesUsed": 0,
@@ -284,7 +284,7 @@ curl -X GET http://localhost:5000/api/v1/subscriptions/bundles \
 ```json
 [
   {
-    "id": "bundle-uuid-2",
+    "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
     "tier": "PRO",
     "maxMessages": 100,
     "messagesUsed": 15,
@@ -298,7 +298,7 @@ curl -X GET http://localhost:5000/api/v1/subscriptions/bundles \
     "createdAt": "2024-01-15T00:00:00.000Z"
   },
   {
-    "id": "bundle-uuid-1",
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "tier": "BASIC",
     "maxMessages": 10,
     "messagesUsed": 3,
@@ -328,7 +328,7 @@ curl -X GET http://localhost:5000/api/v1/subscriptions/bundles/active \
 ```json
 [
   {
-    "id": "bundle-uuid-2",
+    "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
     "tier": "PRO",
     "maxMessages": 100,
     "messagesUsed": 15,
@@ -342,7 +342,7 @@ curl -X GET http://localhost:5000/api/v1/subscriptions/bundles/active \
     "createdAt": "2024-01-15T00:00:00.000Z"
   },
   {
-    "id": "bundle-uuid-1",
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "tier": "BASIC",
     "maxMessages": 10,
     "messagesUsed": 3,
