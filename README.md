@@ -168,7 +168,19 @@ curl -X POST http://localhost:5000/api/v1/chat \
   -d '{"question": "What is NestJS?"}'
 ```
 
-**Note:** The `userId` is automatically extracted from the JWT token.
+**Response:**
+
+```json
+{
+  "id": "message-uuid",
+  "question": "What is NestJS?",
+  "answer": "That is an interesting question! Based on my analysis, here is what I can tell you...",
+  "tokensUsed": 245,
+  "createdAt": "2024-01-01T10:30:00.000Z"
+}
+```
+
+**Note:** The `userId` is automatically extracted from the JWT token. The message quota is deducted from the user's active bundle.
 
 ### 4. Get Chat History (Requires Authentication)
 
@@ -176,6 +188,36 @@ curl -X POST http://localhost:5000/api/v1/chat \
 curl -X GET http://localhost:5000/api/v1/chat/history \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "message-uuid-3",
+    "question": "What is TypeScript?",
+    "answer": "Great question! After processing your input, here is what I found...",
+    "tokensUsed": 312,
+    "createdAt": "2024-01-01T11:00:00.000Z"
+  },
+  {
+    "id": "message-uuid-2",
+    "question": "How does authentication work?",
+    "answer": "I understand your inquiry. Let me provide you with a comprehensive response...",
+    "tokensUsed": 189,
+    "createdAt": "2024-01-01T10:45:00.000Z"
+  },
+  {
+    "id": "message-uuid-1",
+    "question": "What is NestJS?",
+    "answer": "That is an interesting question! Based on my analysis, here is what I can tell you...",
+    "tokensUsed": 245,
+    "createdAt": "2024-01-01T10:30:00.000Z"
+  }
+]
+```
+
+**Note:** Returns all chat messages for the authenticated user, ordered by creation date (newest first).
 
 ### 5. Get Monthly Usage (Requires Authentication)
 
