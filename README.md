@@ -1,4 +1,4 @@
-# NestJS Clean Backend - Feature-Based Architecture
+# Golden Gate Innovation Task- Feature-Based Architecture
 
 A **clean, modular NestJS + PostgreSQL + TypeScript** backend where **each module contains everything it needs** - entities, services, controllers, and repositories.
 
